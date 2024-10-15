@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { cookieToInitialState } from "wagmi";
+import { config } from "@/lib/config/wallet-config";
+import { headers } from "next/headers";
+import WagmiProviderComp from "@/providers/WagmiProvider";
+import { ThemeProvider } from "@/lib/utils/theme-provider";
+import Navbar from "@/components/Navbar";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -23,12 +29,26 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const initialState = cookieToInitialState(config, headers().get("cookie"));
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
+
+          <WagmiProviderComp initialState={initialState}>
+            <div className="p-5 flex flex-col w-full h-screen justify-center items-center">
+
+              <Navbar />
+              <div className="flex flex-col h-[90vh] w-full justify-center items-center">
+                {children}
+              </div>
+            </div>
+
+          </WagmiProviderComp>
+        </ThemeProvider>
       </body>
     </html>
   );
